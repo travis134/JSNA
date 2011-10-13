@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>JSNA Demo</title>
+
+<!--Import local javascript classes (Vector2, Rectangle, Point)-->
+<script type="text/javascript" language="javascript" src="js/Vector2.class.js"></script>
+<script type="text/javascript" language="javascript" src="js/Rectangle.class.js"></script>
+<script type="text/javascript" language="javascript" src="js/Point.class.js"></script>
+<script type="text/javascript" language="javascript" src="js/GameObject.class.js"></script>
+
+</head>
+
+<body onload="Initialize()">
+
+<!--Canvas to draw to-->
+<canvas width="800" height="600" id="gameCanvas" />
+
+<!--Game logic-->
+<script>
+var CANVAS_X = 0;
+var CANVAS_Y = 0;
+var CANVAS_WIDTH = 800;
+var CANVAS_HEIGHT = 600;
+var INTERVAL = 20;
+var gameObjects;
+var viewRectangle;
+var ctx;
+
+function Initialize()
+{
+	var canvas = document.getElementById('gameCanvas');
+	ctx = canvas.getContext('2d');
+	
+	gameObjects = new Array();
+	viewRectangle = new Rectangle(CANVAS_X, CANVAS_Y, CANVAS_WIDTH, CANVAS_HEIGHT);
+	
+	var g = new GameObject("img/test.png", new Vector2(10,10));
+	g.velocity = new Vector2(1,1);
+	g.CustomUpdate = function() {
+		if(this.rectangle.Right() >= viewRectangle.Right() || this.rectangle.Left() <= viewRectangle.Left())
+		{
+			this.velocity.X *= -1;
+		}
+		if(this.rectangle.Bottom() >= viewRectangle.Bottom() || this.rectangle.Top() <= viewRectangle.Top())
+		{
+			this.velocity.Y *= -1;
+		}
+		this.position.Add(this.velocity);
+	};
+	gameObjects.push(g);
+	
+	LoadContent();
+	setInterval(Update, INTERVAL);
+	setInterval(Draw, INTERVAL);
+}
+
+function LoadContent()
+{
+	for(var i = 0; i < gameObjects.length; i++)
+	{
+		gameObjects[i].LoadContent();
+	}
+}
+
+function Update()
+{
+	for(var i = 0; i < gameObjects.length; i++)
+	{
+		gameObjects[i].Update();
+	}
+}
+
+function Draw()
+{
+	ctx.globalCompositeOperation = 'destination-over';  
+	ctx.clearRect(viewRectangle.X, viewRectangle.Y, viewRectangle.Right(), viewRectangle.Bottom());
+	ctx.save(); 
+	
+	for(var i = 0; i < gameObjects.length; i++)
+	{
+		gameObjects[i].Draw(ctx);
+	}
+}
+
+</script>
+
+</body>
+
+</html>
